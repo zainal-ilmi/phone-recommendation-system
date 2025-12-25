@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Similarity Finder - CBR System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+        
+        /* Navigation Styles */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: #667eea !important;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            color: #4a5568 !important;
+            font-weight: 500;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: #667eea !important;
+            color: white !important;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+        
+        .results-grid {
+            display: grid;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .phone-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .phone-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .phone-card h4 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .phone-card p {
+            margin-bottom: 5px;
+            color: #4a5568;
+        }
+        
+        .similarity-bar {
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 20px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .similarity-fill {
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .similarity-score {
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+        
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #c53030;
+        }
+        
+        .success {
+            background: #c6f6d5;
+            color: #2d7a3b;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #38a169;
+        }
+        
+        .selected-phone {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+        
+        .random-phones {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        /* New Sections */
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .developer-card {
+            transition: transform 0.3s;
+            height: 100%;
+        }
+        
+        .developer-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .table-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .accuracy-badge {
+            font-size: 1.2rem;
+        }
+        
+        .record-count {
+            background-color: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+        
+        .dynamic-count {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-mobile-alt"></i> Phone Recommender
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-section="home">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-section="developers">
+                            <i class="fas fa-users"></i> Developers
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-section="dataset">
+                            <i class="fas fa-database"></i> Full Dataset
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-section="accuracy">
+                            <i class="fas fa-chart-line"></i> Accuracy Score
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Home Section -->
+        <div id="home" class="section active">
+            <div class="header">
+                <h1>📱 Phone Similarity Finder</h1>
+                <p>Find the perfect phone match using Content-Based Recommendation</p>
+            </div>
+
+            <!-- Input Form Section with ID for scrolling -->
+            <div class="card" id="inputFormSection">
+                <h2>Enter Phone Specifications</h2>
+                <form id="phoneForm">
+                    <div class="form-grid">
+                        <!-- Brand -->
+                    <div class="form-group">
+                        <label for="brand">Brand *</label>
+                        <select id="brand" required>
+                            <option value="">Select Brand</option>
+                            <option value="Apple">Apple</option>
+                            <option value="Samsung">Samsung</option>
+                            <option value="Xiaomi">Xiaomi</option>
+                            <option value="Oppo">Oppo</option>
+                            <option value="Vivo">Vivo</option>
+                            <option value="OnePlus">OnePlus</option>
+                            <option value="Realme">Realme</option>
+                            <option value="Asus">Asus</option>
+                            <option value="Huawei">Huawei</option>
+                            <option value="Infinix">Infinix</option>
+                        </select>
+                    </div>
+
+                        <!-- Operating System -->
+                        <div class="form-group">
+                            <label for="os">Operating System *</label>
+                            <select id="os" required>
+                                <option value="">Select OS</option>
+                                <option value="iOS">iOS</option>
+                                <option value="Android">Android</option>
+                            </select>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="form-group">
+                            <label for="price">Price (Rp) *</label>
+                            <input type="number" id="price" placeholder="e.g., 8000000" min="1000000" max="50000000" required>
+                        </div>
+
+                        <!-- RAM -->
+                        <div class="form-group">
+                            <label for="ram">RAM (GB) *</label>
+                            <select id="ram" required>
+                                <option value="">Select RAM</option>
+                                <option value="4">4GB</option>
+                                <option value="6">6GB</option>
+                                <option value="8">8GB</option>
+                                <option value="12">12GB</option>
+                                <option value="16">16GB</option>
+                            </select>
+                        </div>
+
+                        <!-- Storage -->
+                        <div class="form-group">
+                            <label for="storage">Storage (GB) *</label>
+                            <select id="storage" required>
+                                <option value="">Select Storage</option>
+                                <option value="64">64GB</option>
+                                <option value="128">128GB</option>
+                                <option value="256">256GB</option>
+                                <option value="512">512GB</option>
+                            </select>
+                        </div>
+
+                        <!-- Screen Size -->
+                        <div class="form-group">
+                            <label for="screen_size">Screen Size (inches)</label>
+                            <input type="number" id="screen_size" placeholder="e.g., 6.5" step="0.1" min="5" max="8" value="6.5">
+                        </div>
+
+                        <!-- Battery Capacity -->
+                        <div class="form-group">
+                            <label for="battery_capacity">Battery Capacity (mAh)</label>
+                            <select id="battery_capacity">
+                                <option value="4000">4000 mAh</option>
+                                <option value="4500">4500 mAh</option>
+                                <option value="5000" selected>5000 mAh</option>
+                                <option value="6000">6000 mAh</option>
+                            </select>
+                        </div>
+
+                        <!-- Main Camera -->
+                        <div class="form-group">
+                            <label for="main_camera">Main Camera (MP)</label>
+                            <select id="main_camera">
+                                <option value="12">12 MP</option>
+                                <option value="48" selected>48 MP</option>
+                                <option value="50">50 MP</option>
+                                <option value="64">64 MP</option>
+                                <option value="108">108 MP</option>
+                            </select>
+                        </div>
+
+                        <!-- User Rating -->
+                        <div class="form-group">
+                            <label for="user_rating">User Rating (1.0 - 5.0)</label>
+                            <input type="number" id="user_rating" placeholder="e.g., 4.2" step="0.1" min="1.0" max="5.0" value="3.0">
+                        </div>
+
+                        <!-- Year -->
+                        <div class="form-group">
+                            <label for="year">Release Year</label>
+                            <select id="year">
+                                <option value="2018">2018</option>
+                                <option value="2019">2019</option>
+                                <option value="2020">2020</option>
+                                <option value="2021">2021</option>
+                                <option value="2022">2022</option>
+                                <option value="2023" selected>2023</option>
+                                <option value="2024">2024</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" id="submitBtn">Find Similar Phones</button>
+                    <button type="button" class="btn btn-secondary" onclick="loadSampleData()">Load Sample Phone</button>
+                   <!-- <button type="button" class="btn btn-success" onclick="addNewPhoneFromForm()">Save as New Phone</button> -->
+                </form>
+            </div>
+
+            <!-- REUSE Section - Selected Phone -->
+            <div class="card" id="reuseSection" style="display: none;">
+                <h2>✅ Selected Phone for Revision</h2>
+                <div id="selectedPhoneInfo" class="success">
+                    <!-- Selected phone info will appear here -->
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-warning" onclick="startRevision()">🔧 Revise Specifications</button>
+                    <button class="btn btn-success" onclick="saveAsNewCase()">💾 Save as New Case</button>
+                    <button class="btn btn-secondary" onclick="clearSelection()">❌ Clear Selection</button>
+                </div>
+            </div>
+
+            <!-- Similar Phones Results -->
+            <div class="card">
+                <h2>Similar Phones Recommendation</h2>
+                <div id="resultsInfo"></div>
+                <div id="similarityResults">
+                    <div class="loading">Enter phone specifications and click "Find Similar Phones" to see recommendations</div>
+                </div>
+            </div>
+
+            <!-- Random Phones -->
+            <div class="card">
+                <h2>Try These Random Phones</h2>
+                <div class="random-phones" id="randomPhones">
+                    <!-- Random phones will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Developers Section -->
+        <div id="developers" class="section">
+            <div class="header">
+                <h1>👥 Development Team</h1>
+                <p>Meet the talented developers behind this CBR Phone Recommendation System</p>
+            </div>
+            
+            <div class="row">
+                <!-- Developer 1 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card developer-card">
+                        <img src="{{ url_for('static', filename='images/zainal.jpg') }}" class="card-img-top" alt="Lead Developer" style="height: 250px; object-fit: cover;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Muhammad Zainal Ilmi</h5>
+                            <p class="card-text text-muted">Lead Developer & CBR Specialist</p>
+                            <p class="card-text">Expert in Case-Based Reasoning algorithms and system architecture with 5+ years experience in recommendation systems.</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">Python</span>
+                                <span class="badge bg-success">Flask</span>
+                                <span class="badge bg-info">Machine Learning</span>
+                                <span class="badge bg-warning">CBR Algorithms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Developer 2 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card developer-card">
+                         <img src="{{ url_for('static', filename='images/ailsa.jpg') }}" class="card-img-top" alt="Data Scientist" style="height: 250px; object-fit: cover;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Ailsa Farah Hamidah</h5>
+                            <p class="card-text text-muted">Data Scientist & ML Engineer</p>
+                            <p class="card-text">Specialized in data preprocessing, similarity metrics, and evaluation frameworks for recommendation systems.</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">Pandas</span>
+                                <span class="badge bg-warning">Data Analysis</span>
+                                <span class="badge bg-dark">Statistics</span>
+                                <span class="badge bg-info">Scikit-learn</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Developer 3 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card developer-card">
+                        <img src="{{ url_for('static', filename='images/aulia.jpg') }}" class="card-img-top" alt="Backend Developer" style="height: 250px; object-fit: cover;"> 
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Nasywah Aulia Hermansyah</h5>
+                            <p class="card-text text-muted">Backend Developer</p>
+                            <p class="card-text">Database design, API development, and system optimization with focus on scalability and performance.</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">MySQL</span>
+                                <span class="badge bg-success">REST API</span>
+                                <span class="badge bg-danger">System Design</span>
+                                <span class="badge bg-secondary">Performance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Developer 4 -->
+                <div class="col-md-6 mb-4">
+                    <div class="card developer-card">
+                        <img src="{{ url_for('static', filename='images/rilla.jpg') }}" class="card-img-top" alt="Frontend Developer" style="height: 250px; object-fit: cover;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Rilla Shadina Arifin</h5>
+                            <p class="card-text text-muted">Frontend Developer</p>
+                            <p class="card-text">UI/UX design, responsive layouts, and user experience optimization for web applications.</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">JavaScript</span>
+                                <span class="badge bg-info">Bootstrap</span>
+                                <span class="badge bg-warning">UI/UX</span>
+                                <span class="badge bg-success">HTML/CSS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Developer 5 -->
+                <div class="col-md-6 mb-4">
+                    <div class="card developer-card">
+                        <img src="{{ url_for('static', filename='images/laurenta.jpeg') }}" class="card-img-top" alt="QA Engineer" style="height: 250px; object-fit: cover;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Laurenta Dini Aprinda</h5>
+                            <p class="card-text text-muted">QA & Testing Engineer</p>
+                            <p class="card-text">System testing, evaluation metrics, and performance optimization with focus on quality assurance.</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">Testing</span>
+                                <span class="badge bg-success">Quality Assurance</span>
+                                <span class="badge bg-info">Performance</span>
+                                <span class="badge bg-dark">Metrics</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Dataset Section -->
+        <div id="dataset" class="section">
+            <div class="header">
+                <h1>📊 Full Phone Dataset</h1>
+                <p>Complete dataset of <span id="datasetRecordCount" class="dynamic-count">1,004</span> phones used for recommendations</p>
+            </div>
+            
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mb-0"><i class="fas fa-database"></i> Phone Database <span id="recordCount" class="record-count">1,004 records</span></h5>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="input-group">
+                                <input type="text" id="searchTable" class="form-control" placeholder="Search phones...">
+                                <button class="btn btn-light" type="button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark sticky-top">
+                            <tr>
+                                <th>ID</th>
+                                <th>Brand</th>
+                                <th>Model</th>
+                                <th>Price (Rp)</th>
+                                <th>RAM</th>
+                                <th>Storage</th>
+                                <th>Screen</th>
+                                <th>Battery</th>
+                                <th>Camera</th>
+                                <th>OS</th>
+                                <th>Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody id="datasetTable">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accuracy Score Section -->
+<!-- Replace the Accuracy Score Section with this updated version -->
+<div id="accuracy" class="section">
+    <div class="header">
+        <h1>📈 System Accuracy</h1>
+        <p>Comprehensive evaluation of CBR system performance</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white;">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Evaluation Results</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3 border rounded">
+                                <h3 class="text-success">88.9%</h3>
+                                <p class="mb-0">Success Rate</p>
+                                <small class="text-muted">Leave-One-Out Evaluation</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3 border rounded">
+                                <h3 class="text-primary">0.765</h3>
+                                <p class="mb-0">Avg Similarity</p>
+                                <small class="text-muted">Quality Matches</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3 border rounded">
+                                <h3 class="text-warning">71.71%</h3>
+                                <p class="mb-0">Precision@5</p>
+                                <small class="text-muted">Top 5 Recommendations</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mt-4"><i class="fas fa-info-circle"></i> Test Details</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Test Cases</span>
+                            <span class="badge bg-primary rounded-pill">100</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>High Similarity Matches</span>
+                            <span class="badge bg-success rounded-pill">359</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Total Dataset Size</span>
+                            <span id="accuracyDatasetSize" class="badge bg-info rounded-pill">1,004</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Evaluation Method</span>
+                            <span class="badge bg-secondary rounded-pill">Leave-One-Out</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-4 p-3 border rounded bg-light">
+                        <h6><i class="fas fa-lightbulb text-warning"></i> Key Findings</h6>
+                        <ul class="mb-0">
+                            <li><strong>Precision@5:</strong> 71.71% - Good relevance in top recommendations</li>
+                            <li><strong>Similarity Score:</strong> 0.765 - Above average matching quality</li>
+                            <li><strong>Success Rate:</strong> 88.9% - High retrieval capability</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h5 class="mb-0"><i class="fas fa-trophy"></i> Performance Rating</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-star fa-3x text-warning mb-3"></i>
+                        <h4>Good</h4>
+                        <p class="text-muted mb-0">Reliable recommendation system</p>
+                    </div>
+                    
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar bg-success" style="width: 88.9%">Success Rate: 88.9%</div>
+                    </div>
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar bg-primary" style="width: 76.5%">Similarity: 76.5%</div>
+                    </div>
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar bg-warning" style="width: 71.71%">Precision: 71.71%</div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <span class="badge bg-success accuracy-badge">Production Ready</span>
+                        <span class="badge bg-warning accuracy-badge">Good Performance</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-book"></i> Interpretation Guide</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="p-3 border rounded h-100">
+                        <h6>✅ Success Rate: 88.9%</h6>
+                        <p class="small mb-0"><strong>Excellent (≥80%)</strong> - Our system achieves 88.9% indicating strong retrieval capability and high success in finding relevant matches.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 border rounded h-100">
+                        <h6>📈 Avg Similarity: 0.765</h6>
+                        <p class="small mb-0"><strong>Good (≥0.7)</strong> - Our system achieves 0.765 indicating above-average matching quality and similarity accuracy.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 border rounded h-100">
+                        <h6>🎯 Precision@5: 71.71%</h6>
+                        <p class="small mb-0"><strong>Good (≥70%)</strong> - Our system achieves 71.71% indicating reliable relevance in top 5 recommendations.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert alert-info mt-4">
+                <i class="fas fa-info-circle"></i> <strong>Evaluation Summary:</strong> The CBR system shows <strong>good overall performance</strong> with room for optimization in precision metrics. The 71.71% precision@5 score indicates that approximately 3-4 out of 5 top recommendations are highly relevant matches.
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+// Replace the entire script section in your HTML with this:
+
+<script>
+    // Phone database - now fetched from your backend
+    let phoneDatabase = [];
+    let selectedPhone = null;
+
+    // Format price in Indonesian Rupiah format
+    function formatPrice(price) {
+        return new Intl.NumberFormat('id-ID').format(price);
+    }
+
+    // Fetch all phones from backend
+    async function fetchAllPhones() {
+        try {
+            const response = await fetch('/api/phones');
+            const result = await response.json();
+            
+            if (result.success) {
+                phoneDatabase = result.data;
+                populateDatasetTable();
+                populateRandomPhones();
+                updateRecordCount();
+            } else {
+                console.error('Error fetching phones:', result.error);
+                // Fallback to sample data if API fails
+                loadSampleDataset();
+            }
+        } catch (error) {
+            console.error('Error fetching phones:', error);
+            // Fallback to sample data if API fails
+            loadSampleDataset();
+        }
+    }
+
+    // Update record count displays
+    function updateRecordCount() {
+        const count = phoneDatabase.length;
+        document.getElementById('recordCount').textContent = `${count} records`;
+        document.getElementById('datasetRecordCount').textContent = count;
+        document.getElementById('accuracyDatasetSize').textContent = count;
+    }
+
+    // Populate the dataset table with real data
+function populateDatasetTable() {
+    const tableBody = document.getElementById('datasetTable');
+    tableBody.innerHTML = '';
+    
+    phoneDatabase.forEach(phone => {
+        // Handle camera data - try multiple possible field names
+        let cameraDisplay = 'N/A';
+        if (phone.main_camera) {
+            if (typeof phone.main_camera === 'string') {
+                const cameraMatch = phone.main_camera.match(/(\d+)/);
+                cameraDisplay = cameraMatch ? `${cameraMatch[1]}MP` : phone.main_camera;
+            } else {
+                cameraDisplay = `${phone.main_camera}MP`;
+            }
+        } else if (phone.camera_resolution) {
+            cameraDisplay = phone.camera_resolution;
+        } else if (phone.Resolusi_kamera) {
+            cameraDisplay = phone.Resolusi_kamera;
+        }
+        
+        // Handle rating - try multiple possible field names
+        let ratingDisplay = 'N/A';
+        if (phone.user_rating !== undefined && phone.user_rating !== null) {
+            ratingDisplay = phone.user_rating;
+        } else if (phone.rating !== undefined && phone.rating !== null) {
+            ratingDisplay = phone.rating;
+        } else if (phone.Rating_pengguna !== undefined && phone.Rating_pengguna !== null) {
+            ratingDisplay = phone.Rating_pengguna;
+        }
+        
+        // Handle ID
+        const idDisplay = (phone.id && phone.id !== 'null' && phone.id !== null) ? phone.id : 'N/A';
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${idDisplay}</td>
+            <td>${phone.brand}</td>
+            <td>${phone.model}</td>
+            <td>${formatPrice(phone.price)}</td>
+            <td>${phone.ram} GB</td>
+            <td>${phone.storage} GB</td>
+            <td>${phone.screen_size}"</td>
+            <td>${phone.battery_capacity}mAh</td>
+            <td>${cameraDisplay}</td>
+            <td>${phone.os}</td>
+            <td>${ratingDisplay}/5</td>
+        `;
+        tableBody.appendChild(row);
+    });
+    
+    updateRecordCount();
+}
+
+// Populate random phones with real data
+function populateRandomPhones() {
+    const randomPhonesContainer = document.getElementById('randomPhones');
+    randomPhonesContainer.innerHTML = '';
+    
+    // Get 3 random phones from the database
+    const shuffled = [...phoneDatabase].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 3);
+    
+    selected.forEach(phone => {
+        const phoneCard = document.createElement('div');
+        phoneCard.className = 'phone-card';
+        
+        // Ensure the phone data includes camera and rating in the correct format
+        const phoneData = {
+            ...phone,
+            // Ensure main_camera is a number for the form
+            main_camera: typeof phone.main_camera === 'string' ? 
+                parseInt(phone.main_camera.match(/(\d+)/)?.[1] || '48') : 
+                phone.main_camera,
+            // Ensure user_rating is a number for the form
+            user_rating: parseFloat(phone.user_rating || phone.rating || '3.0')
+        };
+        
+        phoneCard.setAttribute('data-phone', JSON.stringify(phoneData));
+        phoneCard.onclick = function() { useExistingPhone(this); };
+        
+        // Format for display
+        const cameraDisplay = phoneData.main_camera ? `${phoneData.main_camera}MP` : 'N/A';
+        const ratingDisplay = phoneData.user_rating || 'N/A';
+        const displayName = `${phoneData.brand} ${phoneData.model || ''}`.trim();
+        
+        phoneCard.innerHTML = `
+            <h4>${displayName}</h4>
+            <p><strong>Price:</strong> Rp ${formatPrice(phoneData.price)}</p>
+            <p><strong>RAM:</strong> ${phoneData.ram}GB | <strong>Storage:</strong> ${phoneData.storage}GB</p>
+            <p><strong>Screen:</strong> ${phoneData.screen_size}" | <strong>Battery:</strong> ${phoneData.battery_capacity}mAh</p>
+            <p><strong>Camera:</strong> ${cameraDisplay} | <strong>OS:</strong> ${phoneData.os}</p>
+            <p><strong>Rating:</strong> ${ratingDisplay}★ | <strong>Year:</strong> ${phoneData.year}</p>
+            <button class="btn" style="margin-top: 10px; width: 100%;">Use This Phone</button>
+        `;
+        
+        randomPhonesContainer.appendChild(phoneCard);
+    });
+}
+
+const randomPhonesContainer = document.getElementById('randomPhones');
+        randomPhonesContainer.innerHTML = '';
+        
+        // Get 3 random phones from the database
+        const shuffled = [...phoneDatabase].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 3);
+        
+        selected.forEach(phone => {
+            const phoneCard = document.createElement('div');
+            phoneCard.className = 'phone-card';
+            phoneCard.setAttribute('data-phone', JSON.stringify(phone));
+            phoneCard.onclick = function() { useExistingPhone(this); };
+            
+            phoneCard.innerHTML = `
+                <h4>${phone.brand} ${phone.model}</h4>
+                <p><strong>Price:</strong> Rp ${formatPrice(phone.price)}</p>
+                <p><strong>RAM:</strong> ${phone.ram}GB | <strong>Storage:</strong> ${phone.storage}GB</p>
+                <p><strong>Screen:</strong> ${phone.screen_size}" | <strong>Battery:</strong> ${phone.battery_capacity}mAh</p>
+                <p><strong>Camera:</strong> ${phone.camera_resolution} | <strong>OS:</strong> ${phone.os}</p>
+                <p><strong>Rating:</strong> ${phone.rating}★ | <strong>Year:</strong> ${phone.year}</p>
+                <button class="btn" style="margin-top: 10px; width: 100%;">Use This Phone</button>
+            `;
+            
+            randomPhonesContainer.appendChild(phoneCard);
+        });
+    
+
+    // Add new phone from form (using your existing save_case endpoint)
+    /*
+    function addNewPhoneFromForm() {
+        const brand = document.getElementById('brand').value;
+        const os = document.getElementById('os').value;
+        const price = parseInt(document.getElementById('price').value);
+        const ram = parseInt(document.getElementById('ram').value);
+        const storage = parseInt(document.getElementById('storage').value);
+        const screen_size = parseFloat(document.getElementById('screen_size').value) || 6.0;
+        const battery_capacity = parseInt(document.getElementById('battery_capacity').value) || 4000;
+        const main_camera = parseInt(document.getElementById('main_camera').value) || 48;
+        const user_rating = parseFloat(document.getElementById('user_rating').value) || 3.0;
+        const year = parseInt(document.getElementById('year').value) || 2020;
+        
+        if (!brand || !os || !price || !ram || !storage) {
+            alert('Please fill in all required fields (Brand, OS, Price, RAM, Storage)');
+            return;
+        }
+        
+        const newPhone = {
+            brand: brand,
+            os: os,
+            price: price,
+            ram: ram,
+            storage: storage,
+            screen_size: screen_size,
+            battery_capacity: battery_capacity,
+            main_camera: main_camera,
+            user_rating: user_rating,
+            year: year,
+            model: `Custom ${brand} ${year}`,
+            display_name: `Custom ${brand} ${year}`
+        };
+        
+        // Use your existing save_case endpoint
+        fetch('/save_case', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newPhone)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`✅ New phone added to database! Record count is now ${phoneDatabase.length + 1}`);
+                // Refresh the data
+                fetchAllPhones();
+            } else {
+                alert('❌ Error saving phone: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('❌ Error saving phone: ' + error);
+        });
+    }
+*/
+
+    // Navigation functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Navigation click handlers
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetSection = this.getAttribute('data-section');
+                
+                // Update active nav link
+                document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show target section
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(targetSection).classList.add('active');
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // If dataset section is opened, refresh data
+                if (targetSection === 'dataset') {
+                    fetchAllPhones();
+                }
+            });
+        });
+        updateAccuracyMetrics();
+        // Load initial data from backend
+        fetchAllPhones();
+        
+    });
+
+    // Your existing functions remain mostly the same
+function loadSampleData() {
+        document.getElementById('brand').value = 'Apple';
+        document.getElementById('os').value = 'iOS';
+        document.getElementById('price').value = '15000000';
+        document.getElementById('ram').value = '8';
+        document.getElementById('storage').value = '256';
+        document.getElementById('screen_size').value = '6.7';
+        document.getElementById('battery_capacity').value = '4500';
+        document.getElementById('main_camera').value = '48';
+        document.getElementById('user_rating').value = '4.0';
+        document.getElementById('year').value = '2023';
+    }
+
+function useExistingPhone(element) {
+    const phone = JSON.parse(element.getAttribute('data-phone'));
+    
+    console.log('=== DEBUG: Phone data from random phones ===');
+    console.log('Full phone object:', phone);
+    console.log('Camera value:', phone.main_camera, 'Type:', typeof phone.main_camera);
+    console.log('Rating value:', phone.user_rating || phone.rating, 'Type:', typeof (phone.user_rating || phone.rating));
+    console.log('==========================================');
+    
+    // Populate all form fields
+    document.getElementById('brand').value = phone.brand || '';
+    document.getElementById('os').value = phone.os || '';
+    document.getElementById('price').value = Math.round(phone.price) || '';
+    document.getElementById('ram').value = phone.ram || '';
+    document.getElementById('storage').value = phone.storage || '';
+    document.getElementById('screen_size').value = phone.screen_size || '';
+    document.getElementById('battery_capacity').value = phone.battery_capacity || '';
+    
+    // Handle camera value - multiple approaches
+    let cameraValue = 48; // default
+    if (phone.main_camera) {
+        if (typeof phone.main_camera === 'number') {
+            cameraValue = phone.main_camera;
+        } else if (typeof phone.main_camera === 'string') {
+            const match = phone.main_camera.match(/(\d+)/);
+            cameraValue = match ? parseInt(match[1]) : 48;
+        }
+    }
+    document.getElementById('main_camera').value = cameraValue;
+    console.log('Setting camera to:', cameraValue);
+    
+    // Handle rating value - multiple approaches
+    let ratingValue = 3.0; // default
+    if (phone.user_rating !== undefined && phone.user_rating !== null) {
+        ratingValue = parseFloat(phone.user_rating) || 3.0;
+    } else if (phone.rating !== undefined && phone.rating !== null) {
+        ratingValue = parseFloat(phone.rating) || 3.0;
+    }
+    document.getElementById('user_rating').value = ratingValue;
+    console.log('Setting rating to:', ratingValue);
+    
+    document.getElementById('year').value = phone.year || '';
+    
+    // Scroll to form
+    document.getElementById('inputFormSection').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+    });
+    
+    // Force refresh of form values (sometimes needed for select elements)
+    setTimeout(() => {
+        console.log('Form values after population:');
+        console.log('Camera select:', document.getElementById('main_camera').value);
+        console.log('Rating input:', document.getElementById('user_rating').value);
+    }, 100);
+}
+
+function selectPhone(phoneData) {
+    selectedPhone = phoneData;
+    
+    // FIX: Remove duplicate brand names from display
+    let displayName = `${phoneData.brand} ${phoneData.model || ''}`.trim();
+    
+    // If the model still contains the brand name, remove it
+    const brandRegex = new RegExp(`^${phoneData.brand}\\s*`, 'i');
+    if (phoneData.model && brandRegex.test(phoneData.model)) {
+        const cleanedModel = phoneData.model.replace(brandRegex, '').trim();
+        displayName = `${phoneData.brand} ${cleanedModel}`.trim();
+    }
+    
+    // Handle camera data
+    const camera = phoneData.main_camera ? `${phoneData.main_camera}MP` : 'N/A';
+    const rating = phoneData.user_rating || phoneData.rating || 'N/A';
+    
+    document.getElementById('selectedPhoneInfo').innerHTML = `
+        <h4>${displayName} (ID: ${phoneData.id})</h4>
+        <p><strong>Price:</strong> Rp ${Math.round(phoneData.price || 0).toLocaleString()} | <strong>RAM:</strong> ${phoneData.ram || 'N/A'}GB | <strong>Storage:</strong> ${phoneData.storage || 'N/A'}GB</p>
+        <p><strong>Screen:</strong> ${phoneData.screen_size || 'N/A'}" | <strong>Battery:</strong> ${phoneData.battery_capacity || 'N/A'}mAh | <strong>Camera:</strong> ${camera}</p>
+        <p><strong>OS:</strong> ${phoneData.os || 'N/A'} | <strong>Rating:</strong> ${rating}★ | <strong>Year:</strong> ${phoneData.year || 'N/A'}</p>
+        <p><strong>Similarity Score:</strong> ${((phoneData.total_similarity || 0) * 100).toFixed(1)}%</p>
+    `;
+    
+    document.getElementById('reuseSection').style.display = 'block';
+    document.getElementById('reuseSection').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+    });
+    
+    const allPhoneCards = document.querySelectorAll('.phone-card');
+    allPhoneCards.forEach(card => {
+        card.classList.remove('selected-phone');
+    });
+    
+    const selectedCard = Array.from(allPhoneCards).find(card => {
+        const cardPhone = JSON.parse(card.getAttribute('data-phone') || '{}');
+        return cardPhone.id === phoneData.id;
+    });
+    
+    if (selectedCard) {
+        selectedCard.classList.add('selected-phone');
+    }
+}
+
+function startRevision() {
+    if (!selectedPhone) return;
+    
+    // DEBUG: Check what's actually in the selectedPhone object
+    console.log('Selected Phone Object:', selectedPhone);
+    console.log('Main Camera:', selectedPhone.main_camera);
+    console.log('User Rating:', selectedPhone.user_rating);
+    
+    document.getElementById('brand').value = selectedPhone.brand;
+    document.getElementById('os').value = selectedPhone.os || '';
+    document.getElementById('price').value = Math.round(selectedPhone.price);
+    document.getElementById('ram').value = selectedPhone.ram;
+    document.getElementById('storage').value = selectedPhone.storage;
+    document.getElementById('screen_size').value = selectedPhone.screen_size;
+    document.getElementById('battery_capacity').value = selectedPhone.battery_capacity;
+    
+    // FIX: Use the correct field names from backend
+    document.getElementById('main_camera').value = selectedPhone.main_camera || '';
+    document.getElementById('user_rating').value = selectedPhone.user_rating || '';
+    document.getElementById('year').value = selectedPhone.year;
+    
+    document.getElementById('inputFormSection').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+    });
+    
+    alert('📝 Phone specifications loaded into the form. You can now modify them and click "Find Similar Phones" again!');
+}
+
+function saveAsNewCase() {
+        if (!selectedPhone) return;
+        
+        if (confirm('💾 Are you sure you want to save this phone as a new case in the database?')) {
+            fetch('/save_case', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(selectedPhone)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Phone saved successfully as a new case!');
+                    clearSelection();
+                    // Refresh the data
+                    fetchAllPhones();
+                } else {
+                    alert('❌ Error saving phone: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('❌ Error saving phone: ' + error);
+            });
+        }
+    }
+
+function clearSelection() {
+        selectedPhone = null;
+        document.getElementById('reuseSection').style.display = 'none';
+        
+        const allPhoneCards = document.querySelectorAll('.phone-card');
+        allPhoneCards.forEach(card => {
+            card.classList.remove('selected-phone');
+        });
+    }
+
+async function findSimilarPhones(event) {
+        event.preventDefault();
+        
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Searching...';
+        
+        const inputPhone = {
+            brand: document.getElementById('brand').value,
+            os: document.getElementById('os').value,
+            stock_available: 'true',  // ← ADD THIS LINE
+            price: parseInt(document.getElementById('price').value),
+            ram: parseInt(document.getElementById('ram').value),
+            storage: parseInt(document.getElementById('storage').value),
+            screen_size: parseFloat(document.getElementById('screen_size').value) || 6.0,
+            battery_capacity: parseInt(document.getElementById('battery_capacity').value) || 4000,
+            main_camera: parseInt(document.getElementById('main_camera').value) || 48,
+            user_rating: parseFloat(document.getElementById('user_rating').value) || 3.0,
+            year: parseInt(document.getElementById('year').value) || 2020
+        };
+
+        try {
+            const response = await fetch('/search_similar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(inputPhone)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            displayResults(inputPhone, data);
+            
+        } catch (error) {
+            console.error('Error:', error);
+            showError('similarityResults', 'Error searching for similar phones: ' + error.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Find Similar Phones';
+        }
+    }
+
+// Add this function if it doesn't exist, or update it if it does
+function updateAccuracyMetrics() {
+    // These are the actual metrics from your evaluation
+    const metrics = {
+        successRate: 88.9,
+        avgSimilarity: 0.765,
+        precision: 71.71,
+        testCases: 100,
+        highMatches: 359
+    };
+    
+    // Update DOM elements in the accuracy section
+    const successRateEl = document.querySelector('.text-success');
+    const precisionEl = document.querySelector('.text-warning');
+    const similarityEl = document.querySelector('.text-primary');
+    
+    if (successRateEl) successRateEl.textContent = metrics.successRate + '%';
+    if (precisionEl) precisionEl.textContent = metrics.precision + '%';
+    if (similarityEl) similarityEl.textContent = metrics.avgSimilarity.toFixed(3);
+    
+    // Also update progress bars if they exist
+    const successBar = document.querySelector('.progress-bar.bg-success');
+    const similarityBar = document.querySelector('.progress-bar.bg-primary');
+    const precisionBar = document.querySelector('.progress-bar.bg-warning');
+    
+    if (successBar) successBar.style.width = metrics.successRate + '%';
+    if (similarityBar) similarityBar.style.width = (metrics.avgSimilarity * 100) + '%';
+    if (precisionBar) precisionBar.style.width = metrics.precision + '%';
+}
+
+// Update the displayResults function to add evaluation note
+function displayResults(inputPhone, similarities) {
+    const resultsDiv = document.getElementById('similarityResults');
+    const infoDiv = document.getElementById('resultsInfo');
+
+    infoDiv.innerHTML = `
+        <div class="success">
+            <strong>Input Phone:</strong> ${inputPhone.brand} | 
+            Rp ${inputPhone.price.toLocaleString()} | 
+            ${inputPhone.ram}GB RAM | 
+            ${inputPhone.storage}GB Storage |
+            ${inputPhone.os} OS
+        </div>
+        <p style="margin-top: 10px;"><strong>Found ${similarities.length} similar phones:</strong></p>
+    `;
+
+    if (similarities.length === 0) {
+        resultsDiv.innerHTML = '<div class="error">No similar phones found. Try adjusting your criteria.</div>';
+        return;
+    }
+
+    let resultsHTML = '<div class="results-grid">';
+    similarities.forEach((item, index) => {
+        // FIX: Remove duplicate brand names from display
+        let displayName = `${item.brand} ${item.model || ''}`.trim();
+        
+        // If the model still contains the brand name, remove it
+        const brandRegex = new RegExp(`^${item.brand}\\s*`, 'i');
+        if (item.model && brandRegex.test(item.model)) {
+            const cleanedModel = item.model.replace(brandRegex, '').trim();
+            displayName = `${item.brand} ${cleanedModel}`.trim();
+        }
+        
+        const camera = item.main_camera ? `${item.main_camera}MP` : 'N/A';
+        const rating = item.user_rating || item.rating || 'N/A';
+        
+        resultsHTML += `
+            <div class="phone-card" data-phone='${JSON.stringify(item)}'>
+                <h4>#${index + 1}: ${displayName} (ID: ${item.id})</h4>
+                <p><strong>Price:</strong> Rp ${Math.round(item.price).toLocaleString()} | <strong>RAM:</strong> ${item.ram}GB | <strong>Storage:</strong> ${item.storage}GB</p>
+                <p><strong>Screen:</strong> ${item.screen_size}" | <strong>Battery:</strong> ${item.battery_capacity}mAh | <strong>Camera:</strong> ${camera}</p>
+                <p><strong>OS:</strong> ${item.os} | <strong>Rating:</strong> ${rating}★ | <strong>Year:</strong> ${item.year}</p>
+                
+                <div class="similarity-bar">
+                    <div class="similarity-fill" style="width: ${item.total_similarity * 100}%"></div>
+                </div>
+                <div class="similarity-score">
+                    Total Similarity: ${(item.total_similarity * 100).toFixed(1)}%
+                </div>
+                <small style="color: #666;">
+                    Jaccard: ${(item.jaccard_similarity * 100).toFixed(1)}% | 
+                    Numerical: ${(item.numerical_similarity * 100).toFixed(1)}%
+                </small>
+                
+                <button class="btn btn-success" onclick="selectPhone(${JSON.stringify(item).replace(/"/g, '&quot;')})" style="margin-top: 10px; width: 100%;">
+                    ✅ Select This Phone
+                </button>
+            </div>
+        `;
+    });
+    resultsHTML += '</div>';
+    
+    // Add evaluation note at the end
+    resultsHTML += `
+        <div class="alert alert-info mt-4" style="background-color: #e8f4fd; border-left: 4px solid #3498db; padding: 15px; border-radius: 8px;">
+            <i class="fas fa-chart-line"></i> 
+            <strong>System Performance Note:</strong> This recommendation system has been evaluated with 
+            <strong>71.71% precision@5</strong>, meaning approximately 3-4 out of 5 top recommendations 
+            are highly relevant matches.
+        </div>
+    `;
+    
+    resultsDiv.innerHTML = resultsHTML;
+}
+
+function showError(containerId, message) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '<div class="error">' + message + '</div>';
+    }
+
+    // Fallback function if API fails
+function loadSampleDataset() {
+        const tableBody = document.getElementById('datasetTable');
+        // Use first 10 phones as sample if API fails
+        const sampleData = phoneDatabase.slice(0, 10) || [
+            {id: 1, brand: 'Apple', model: 'Max 10', price: 15015201, ram: 12, storage: 256, screen_size: 5.5, battery_capacity: 4000, camera_resolution: '48MP', os: 'iOS', rating: 2.4},
+            {id: 2, brand: 'Apple', model: 'Max 11', price: 18727456, ram: 4, storage: 512, screen_size: 6.1, battery_capacity: 5000, camera_resolution: '108MP', os: 'iOS', rating: 4.4},
+        ];
+        
+        sampleData.forEach(phone => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${phone.id}</td>
+                <td>${phone.brand}</td>
+                <td>${phone.model}</td>
+                <td>${formatPrice(phone.price)}</td>
+                <td>${phone.ram} GB</td>
+                <td>${phone.storage} GB</td>
+                <td>${phone.screen_size}"</td>
+                <td>${phone.battery_capacity}mAh</td>
+                <td>${phone.camera_resolution}</td>
+                <td>${phone.os}</td>
+                <td>${phone.rating}/5</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Search functionality for dataset table
+document.getElementById('searchTable')?.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#datasetTable tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Attach form submit event
+document.getElementById('phoneForm').addEventListener('submit', findSimilarPhones);
+</script>
+</body>
+</html>
