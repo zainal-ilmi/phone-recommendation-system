@@ -90,8 +90,7 @@ Muhammad Zainal Ilmi : Full stack developer / data scientist
 For questions, issues, or contributions:
 
 - GitHub Issues: Report a Bug
-- Email: your.email@example.com
-- LinkedIn: Your Profile
+- LinkedIn: https://www.linkedin.com/in/zainal-ilmi/
 
 ⭐ If you find this project useful, please give it a star on GitHub!
 Built with ❤️ using Python, Flask, and MySQL
